@@ -1,0 +1,22 @@
+name: CD workflow
+
+on:
+    workflow_run:
+        workflows: [ "CI workflow" ]
+        types: [ completed ]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Execute remote ssh
+              uses: appleboy/ssh-action@v1
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.PASSWORD }}
+                  script: |
+                      cd ~/github-actions-demo
+                      git pull origin main
+                      docker compose pull
+                      docker compose up -d
